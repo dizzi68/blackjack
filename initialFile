@@ -1,0 +1,148 @@
+import random
+
+# Tables to draw info about what the player should do. The win/loss entries are initialized to 1 to avoid division by zero potential.
+# Each table is used when that value is what the dealer shows. Each triple represents the total of the player in index 0, the number
+# of times hitting wins on that value in index 1, and the total number of times that value has come up in index 2.
+valueTable1 = [[1],[0],[2,1,1],[3,1,1],[4,1,1],[5,1,1],[6,1,1],[7,1,1],[8,1,1],[9,1,1],[10,1,1],[11,1,1],[12,1,1],[13,1,1],[14,1,1],[15,1,1],[16,1,1],[17,1,1],[18,1,1],[19,1,1],[20,1,1],[21,1,1]]
+valueTable2 = [[2],[0],[2,1,1],[3,1,1],[4,1,1],[5,1,1],[6,1,1],[7,1,1],[8,1,1],[9,1,1],[10,1,1],[11,1,1],[12,1,1],[13,1,1],[14,1,1],[15,1,1],[16,1,1],[17,1,1],[18,1,1],[19,1,1],[20,1,1],[21,1,1]]
+valueTable3 = [[3],[0],[2,1,1],[3,1,1],[4,1,1],[5,1,1],[6,1,1],[7,1,1],[8,1,1],[9,1,1],[10,1,1],[11,1,1],[12,1,1],[13,1,1],[14,1,1],[15,1,1],[16,1,1],[17,1,1],[18,1,1],[19,1,1],[20,1,1],[21,1,1]]
+valueTable4 = [[4],[0],[2,1,1],[3,1,1],[4,1,1],[5,1,1],[6,1,1],[7,1,1],[8,1,1],[9,1,1],[10,1,1],[11,1,1],[12,1,1],[13,1,1],[14,1,1],[15,1,1],[16,1,1],[17,1,1],[18,1,1],[19,1,1],[20,1,1],[21,1,1]]
+valueTable5 = [[5],[0],[2,1,1],[3,1,1],[4,1,1],[5,1,1],[6,1,1],[7,1,1],[8,1,1],[9,1,1],[10,1,1],[11,1,1],[12,1,1],[13,1,1],[14,1,1],[15,1,1],[16,1,1],[17,1,1],[18,1,1],[19,1,1],[20,1,1],[21,1,1]]
+valueTable6 = [[6],[0],[2,1,1],[3,1,1],[4,1,1],[5,1,1],[6,1,1],[7,1,1],[8,1,1],[9,1,1],[10,1,1],[11,1,1],[12,1,1],[13,1,1],[14,1,1],[15,1,1],[16,1,1],[17,1,1],[18,1,1],[19,1,1],[20,1,1],[21,1,1]]
+valueTable7 = [[7],[0],[2,1,1],[3,1,1],[4,1,1],[5,1,1],[6,1,1],[7,1,1],[8,1,1],[9,1,1],[10,1,1],[11,1,1],[12,1,1],[13,1,1],[14,1,1],[15,1,1],[16,1,1],[17,1,1],[18,1,1],[19,1,1],[20,1,1],[21,1,1]]
+valueTable8 = [[8],[0],[2,1,1],[3,1,1],[4,1,1],[5,1,1],[6,1,1],[7,1,1],[8,1,1],[9,1,1],[10,1,1],[11,1,1],[12,1,1],[13,1,1],[14,1,1],[15,1,1],[16,1,1],[17,1,1],[18,1,1],[19,1,1],[20,1,1],[21,1,1]]
+valueTable9 = [[9],[0],[2,1,1],[3,1,1],[4,1,1],[5,1,1],[6,1,1],[7,1,1],[8,1,1],[9,1,1],[10,1,1],[11,1,1],[12,1,1],[13,1,1],[14,1,1],[15,1,1],[16,1,1],[17,1,1],[18,1,1],[19,1,1],[20,1,1],[21,1,1]]
+valueTable10 = [[10],[0],[2,1,1],[3,1,1],[4,1,1],[5,1,1],[6,1,1],[7,1,1],[8,1,1],[9,1,1],[10,1,1],[11,1,1],[12,1,1],[13,1,1],[14,1,1],[15,1,1],[16,1,1],[17,1,1],[18,1,1],[19,1,1],[20,1,1],[21,1,1]]
+
+dealerCardShown = 0
+activeTable = valueTable1
+playerCards = []
+dealerCards = []
+currentSum = 0
+dealerSum = 0
+
+def drawCard():
+    # Range 1-13 for random card
+    card = random.randrange(1,13)
+    # Return Jack, Queen, and King if relevant. This is for printed statements, get the int later
+    if (card == 11):
+        card = "Jack"
+    elif (card == 12):
+        card = "Queen"
+    elif (card == 13):
+        card = "King"
+    return card
+
+def playHand():
+    global activeTable
+    global dealerCardShown
+    newCard = drawCard()
+    print(newCard)
+    if (newCard == "Jack") or (newCard == "Queen") or (newCard == "King"):
+        newCard = 10
+    dealerCardShown = newCard
+    if dealerCardShown == 1:
+        activeTable = valueTable1
+    elif dealerCardShown == 2:
+        activeTable = valueTable2
+    elif dealerCardShown == 3:
+        activeTable = valueTable3
+    elif dealerCardShown == 4:
+        activeTable = valueTable4
+    elif dealerCardShown == 5:
+        activeTable = valueTable5
+    elif dealerCardShown == 6:
+        activeTable = valueTable6
+    elif dealerCardShown == 7:
+        activeTable = valueTable7
+    elif dealerCardShown == 8:
+        activeTable = valueTable8
+    elif dealerCardShown == 9:
+        activeTable = valueTable9
+    elif dealerCardShown == 10:
+        activeTable = valueTable10
+    else:
+        print("Error")
+        activeTable = valueTable1
+    dealerHand()
+    playerHand()
+        
+def playerHand():
+    global playerCards
+    playerCards = []
+    global currentSum
+    currentSum = 0
+    print("Player Begins")
+    print(currentSum, playerCards)
+    while len(playerCards) < 2:
+        newCard = drawCard()
+        print(newCard)
+        # Make the face cards into value 10
+        if (newCard == "Jack") or (newCard == "Queen") or (newCard == "King"):
+            newCard = 10
+        playerCards.append(newCard)
+    currentSum = playerCards[0] + playerCards[1]
+    while currentSum < 21:
+        decision = hitOrStay()
+        if decision == "Hit":
+            newCard = drawCard()
+            print(newCard)
+            # Make the face cards into value 10
+            if (newCard == "Jack") or (newCard == "Queen") or (newCard == "King"):
+                newCard = 10
+            playerCards.append(newCard) # Unnecessary?
+            currentSum = currentSum + int(newCard)
+            print("Current total:", currentSum)
+        elif decision == "Stay":
+            # End of hand; return sum as the result of the function
+            return currentSum
+        else:
+            print("Error")
+            break
+
+def hitOrStay():
+    global activeTable
+    global playerCards
+    global currentSum
+    # Automatically hit when the total is less than 12. This prevents the guaranteed hit values from affecting the table.
+    if currentSum <= 11:
+        return "Hit"
+    if activeTable[currentSum][1]/activeTable[currentSum][2] >= .5:
+        return "Hit"
+    else:
+        return "Stay"
+
+def dealerHand():
+    global dealerSum
+    global dealerCardShown
+    dealerCards = [dealerCardShown]
+    newCard = drawCard()
+    print(newCard)
+    if (newCard == "Jack") or (newCard == "Queen") or (newCard == "King"):
+        newCard = 10
+    dealerCards.append(newCard)
+    print(dealerCards)
+    for each in dealerCards:
+        dealerSum = dealerCards[0] + dealerCards[1]
+    print(dealerSum)
+    while dealerSum <= 21:
+        if dealerSum <= 16:
+            newCard = drawCard()
+            print(newCard)
+            if (newCard == "Jack") or (newCard == "Queen") or (newCard == "King"):
+                newCard = 10
+            dealerSum = dealerSum + int(newCard)
+            print("Current total:", dealerSum)
+        elif dealerSum > 16:
+            print("Dealer Stands")
+            return dealerSum
+        else:
+            print("Error")
+            break
+    print("Dealer Busts")
+
+# Testing multiple calls of dealerHand(), debugging function
+def dealerHands(reps):
+    for i in range(0,reps):
+        dealerHand()
+        i = i+1
