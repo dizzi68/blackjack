@@ -15,11 +15,19 @@ valueTable9 = [[9],[0],[2,1,1],[3,1,1],[4,1,1],[5,1,1],[6,1,1],[7,1,1],[8,1,1],[
 valueTable10 = [[10],[0],[2,1,1],[3,1,1],[4,1,1],[5,1,1],[6,1,1],[7,1,1],[8,1,1],[9,1,1],[10,1,1],[11,1,1],[12,1,1],[13,1,1],[14,1,1],[15,1,1],[16,1,1],[17,1,1],[18,1,1],[19,1,1],[20,1,1],[21,1,1]]
 
 dealerCardShown = 0
-activeTable = valueTable1
+activeTable = valueTable2
 playerCards = []
 dealerCards = []
-currentSum = 0
+playerSum = 0
 dealerSum = 0
+playerTotal = 0
+playerTotal = 0
+hResult = "Push"
+hits = []
+stays = []
+wins = 0
+losses = 0
+pushes = 0
 
 def drawCard():
     # Range 1-13 for random card
@@ -36,8 +44,16 @@ def drawCard():
 def playHand():
     global activeTable
     global dealerCardShown
+    global dealerTotal
+    global playerTotal
+    global hResult
+    global hits
+    global stays
+    global wins
+    global losses
+    global pushes
     newCard = drawCard()
-    print(newCard)
+    # print(newCard)
     if (newCard == "Jack") or (newCard == "Queen") or (newCard == "King"):
         newCard = 10
     dealerCardShown = newCard
@@ -62,54 +78,83 @@ def playHand():
     elif dealerCardShown == 10:
         activeTable = valueTable10
     else:
-        print("Error")
+        # print("Error")
         activeTable = valueTable1
-    dealerHand()
-    playerHand()
-        
+    dealerTotal = dealerHand()
+    playerTotal = playerHand()
+    hResult = str(handResult())
+    updateTables()
+    # print(activeTable)
+    if hResult == "Win":
+        wins = wins + 1
+        # print("Player wins!")
+    elif hResult == "Loss":
+        losses = losses + 1
+        # print("Player loses.")
+    elif hResult == "Push":
+        pushes = pushes + 1
+        # print("Player pushes.")
+    # else:
+        # print("Error")
+    dealerCardShown = 0
+    playerCards = []
+    dealerCards = []
+    playerSum = 0
+    dealerSum = 0
+    playerTotal = 0
+    playerTotal = 0
+    hResult = "Push"
+    hits = []
+    stays = []
+
 def playerHand():
     global playerCards
     playerCards = []
-    global currentSum
-    currentSum = 0
-    print("Player Begins")
-    print(currentSum, playerCards)
+    global playerSum
+    playerSum = 0
+    # print("Player Begins")
+    # print(playerSum, playerCards)
     while len(playerCards) < 2:
         newCard = drawCard()
-        print(newCard)
+        # print(newCard)
         # Make the face cards into value 10
         if (newCard == "Jack") or (newCard == "Queen") or (newCard == "King"):
             newCard = 10
         playerCards.append(newCard)
-    currentSum = playerCards[0] + playerCards[1]
-    while currentSum < 21:
+    playerSum = playerCards[0] + playerCards[1]
+    while playerSum < 21:
         decision = hitOrStay()
         if decision == "Hit":
             newCard = drawCard()
-            print(newCard)
+            # print(newCard)
             # Make the face cards into value 10
             if (newCard == "Jack") or (newCard == "Queen") or (newCard == "King"):
                 newCard = 10
-            playerCards.append(newCard) # Unnecessary?
-            currentSum = currentSum + int(newCard)
-            print("Current total:", currentSum)
+            playerCards.append(newCard)
+            playerSum = playerSum + int(newCard)
+            # print("Current total:", playerSum)
         elif decision == "Stay":
             # End of hand; return sum as the result of the function
-            return currentSum
+            return playerSum
         else:
-            print("Error")
+            # print("Error")
             break
+    return playerSum
 
 def hitOrStay():
     global activeTable
     global playerCards
-    global currentSum
+    global playerSum
+    global hits
+    global stays
     # Automatically hit when the total is less than 12. This prevents the guaranteed hit values from affecting the table.
-    if currentSum <= 11:
+    if playerSum <= 11:
         return "Hit"
-    if activeTable[currentSum][1]/activeTable[currentSum][2] >= .5:
+    if activeTable[playerSum][1]/activeTable[playerSum][2] >= .5:
+        hits.append(playerSum)
         return "Hit"
     else:
+        stays.append(playerSum)
         return "Stay"
 
 def dealerHand():
@@ -117,29 +162,91 @@ def dealerHand():
     global dealerCardShown
     dealerCards = [dealerCardShown]
     newCard = drawCard()
-    print(newCard)
+    # print(newCard)
     if (newCard == "Jack") or (newCard == "Queen") or (newCard == "King"):
         newCard = 10
     dealerCards.append(newCard)
-    print(dealerCards)
+    # print(dealerCards)
     for each in dealerCards:
         dealerSum = dealerCards[0] + dealerCards[1]
-    print(dealerSum)
+    # print(dealerSum)
     while dealerSum <= 21:
         if dealerSum <= 16:
             newCard = drawCard()
-            print(newCard)
+            # print(newCard)
             if (newCard == "Jack") or (newCard == "Queen") or (newCard == "King"):
                 newCard = 10
             dealerSum = dealerSum + int(newCard)
-            print("Current total:", dealerSum)
+            # print("Current total:", dealerSum)
         elif dealerSum > 16:
-            print("Dealer Stands")
+            # print("Dealer Stands")
             return dealerSum
         else:
-            print("Error")
+            # print("Error")
             break
-    print("Dealer Busts")
+    return dealerSum
+    # print("Dealer Busts")
+
+def handResult():
+    global playerTotal
+    global dealerTotal
+    global activeTable
+    winsThisUp = 0
+    playerTotal = int(playerTotal)
+    # print(playerTotal)
+    if playerTotal > 21:
+        result = "Loss"
+    elif dealerTotal > 21:
+        result = "Win"
+    elif playerTotal < dealerTotal:
+        result = "Loss"
+    elif playerTotal > dealerTotal:
+        result = "Win"
+    elif playerTotal == dealerTotal:
+        result = "Push"
+    return str(result)
+
+def updateTables():
+    if hResult == "Loss":
+        # If a loss, lower the percent hit wins for hit cards, increase the percent hit wins for stay cards
+        for each in hits:
+            activeTable[each][2] = activeTable[each][2] + 1
+            # print("Updated hits")
+        for each in stays:
+            activeTable[each][1] = activeTable[each][1] + 1
+            activeTable[each][2] = activeTable[each][2] + 1
+            # print("Updated stays")
+    if hResult == "Win":
+        # If a win, increase the percent hit wins for hit cards, decrease the percent hit wins for stay cards
+        for each in hits:
+            activeTable[each][1] = activeTable[each][1] + 1
+            activeTable[each][2] = activeTable[each][2] + 1
+            # print("Updated hits")
+        for each in stays:
+            activeTable[each][2] = activeTable[each][2] + 1
+            # print("Updated stays")
+
+def playHands(reps):
+    global wins
+    global losses
+    global pushes
+    for i in range(0,reps):
+        playHand()
+        i = i+1
+    print(activeTable)
+    print("Wins:", wins, "Losses:", losses, "Pushes:", pushes)
+    total = wins+losses+pushes
+    winPercent = wins/total
+    print("Total:", total)
+    print("Win %:", winPercent)
+
+def refresh():
+    global wins
+    global losses
+    global pushes
+    wins = 0
+    losses = 0
+    pushes = 0    
 
 # Testing multiple calls of dealerHand(), debugging function
 def dealerHands(reps):
